@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: upload-backend-demo
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MEGA_EMAIL
+        sync: false  # Set manually in Render dashboard for security
+      - key: MEGA_PASSWORD
+        sync: false  # Set manually in Render dashboard for security
+    healthCheckPath: /health
+    autoDeploy: true
+    branch: main

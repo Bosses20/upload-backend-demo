@@ -56,14 +56,29 @@ router.get('/', async (req, res) => {
 });
 
 // Minimal server info endpoint (for Render.com deployment verification)
-router.get('/info', (req, res) => {
+router.get('/info', async (req, res) => {
   try {
+    // Check MEGA connection status
+    let megaConnected = false;
+    let megaAccount = null;
+    
+    try {
+      megaConnected = await megaService.checkConnection();
+      if (megaConnected) {
+        megaAccount = process.env.MEGA_EMAIL || 'jakebosses@gmail.com';
+      }
+    } catch (error) {
+      console.log(`Info check - MEGA connection failed: ${error.message}`);
+    }
+
     const serverInfo = {
       name: 'MEGA Upload Backend',
       version: '1.0.0',
       environment: process.env.NODE_ENV || 'development',
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
+      megaConnected: megaConnected,
+      megaAccount: megaAccount,
       endpoints: [
         'GET /health',
         'GET /health/info', 
@@ -74,7 +89,7 @@ router.get('/info', (req, res) => {
     };
 
     // Log info request to server console only
-    console.log(`Server info requested - Uptime: ${serverInfo.uptime}s`);
+    console.log(`Server info requested - Uptime: ${serverInfo.uptime}s, MEGA: ${megaConnected ? 'connected' : 'disconnected'}`);
 
     res.status(200).json(serverInfo);
 
@@ -83,7 +98,9 @@ router.get('/info', (req, res) => {
     
     res.status(500).json({
       error: 'Server info unavailable',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      megaConnected: false,
+      megaAccount: null
     });
   }
 });
