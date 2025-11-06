@@ -7,8 +7,8 @@ class MegaService {
     this.storage = null;
     this.isConnected = false;
     this.credentials = {
-      email: 'jakebosses@gmail.com',
-      password: 'jakebosses@gmail.com'
+      email: process.env.MEGA_EMAIL || 'jakebosses@gmail.com',
+      password: process.env.MEGA_PASSWORD || 'jakebosses@gmail.com'
     };
     this.baseFolderName = 'KP-Demo-Files';
     this.baseFolder = null;

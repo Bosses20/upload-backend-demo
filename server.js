@@ -11,6 +11,9 @@ const authMiddleware = require('./middleware/auth');
 const { handleUploadError } = require('./middleware/upload');
 const logger = require('./utils/logger');
 
+// Import services
+const megaService = require('./services/megaService');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -66,14 +69,29 @@ app.use((req, res) => {
   });
 });
 
+// Initialize MEGA service
+async function initializeServices() {
+  try {
+    console.log('Initializing MEGA service...');
+    await megaService.initialize();
+    console.log('MEGA service initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize MEGA service:', error.message);
+    console.log('Server will continue without MEGA connection');
+  }
+}
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`MEGA Upload Backend Server started`);
   console.log(`Port: ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Upload endpoint: http://localhost:${PORT}/upload`);
   console.log(`Status endpoint: http://localhost:${PORT}/status/:deviceId`);
+  
+  // Initialize services after server starts
+  await initializeServices();
 });
 
 module.exports = app;
